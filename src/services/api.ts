@@ -1,30 +1,24 @@
-import { Platform } from 'react-native';
-
 /**
- * Base URL of the Luma proxy server.
- * Android emulators use 10.0.2.2 to reach the host machine's localhost.
- * Physical devices / Fire Stick should use the LAN IP of the dev machine.
+ * Luma API — standalone mode.
+ * Talks directly to Stalker / Ministra portals from the device.
+ * No proxy server required.
  */
-const BASE_URL = Platform.select({
-  android: 'http://10.0.2.2:3001',
-  default: 'http://localhost:3001',
-});
-
-async function post<T = any>(path: string, body: Record<string, any>): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.error ?? `Request failed (${res.status})`);
-  }
-  return json as T;
-}
+import {
+  portalHandshake,
+  portalProfile,
+  portalGenres,
+  portalChannels,
+  portalVodList,
+  portalVodInfo,
+  portalSeriesList,
+  portalSeriesEpisodes,
+  portalSearch,
+  portalResolveStream,
+  PortalSession,
+} from './portal';
 
 /* ------------------------------------------------------------------ */
-/*  Public API methods                                                */
+/*  Public API methods (same signatures the app already uses)         */
 /* ------------------------------------------------------------------ */
 
 export interface HandshakeResult {
@@ -32,15 +26,15 @@ export interface HandshakeResult {
 }
 
 export function apiHandshake(portalUrl: string, mac: string) {
-  return post<HandshakeResult>('/api/handshake', { portalUrl, mac });
+  return portalHandshake(portalUrl, mac);
 }
 
 export function apiProfile(portalUrl: string, mac: string, token: string) {
-  return post('/api/profile', { portalUrl, mac, token });
+  return portalProfile({ portalUrl, mac, token });
 }
 
 export function apiGenres(portalUrl: string, mac: string, token: string, type: string) {
-  return post('/api/genres', { portalUrl, mac, token, type });
+  return portalGenres({ portalUrl, mac, token }, type);
 }
 
 export function apiChannels(
@@ -50,7 +44,7 @@ export function apiChannels(
   genreId: string,
   page = 1,
 ) {
-  return post('/api/channels', { portalUrl, mac, token, genreId, page });
+  return portalChannels({ portalUrl, mac, token }, genreId, page);
 }
 
 export function apiVodList(
@@ -60,11 +54,11 @@ export function apiVodList(
   categoryId: string,
   page = 1,
 ) {
-  return post('/api/vod-list', { portalUrl, mac, token, categoryId, page });
+  return portalVodList({ portalUrl, mac, token }, categoryId, page);
 }
 
 export function apiVodInfo(portalUrl: string, mac: string, token: string, movieId: string) {
-  return post('/api/vod-info', { portalUrl, mac, token, movieId });
+  return portalVodInfo({ portalUrl, mac, token }, movieId);
 }
 
 export function apiSeriesList(
@@ -74,7 +68,7 @@ export function apiSeriesList(
   categoryId: string,
   page = 1,
 ) {
-  return post('/api/series-list', { portalUrl, mac, token, categoryId, page });
+  return portalSeriesList({ portalUrl, mac, token }, categoryId, page);
 }
 
 export function apiSeriesEpisodes(
@@ -84,7 +78,7 @@ export function apiSeriesEpisodes(
   seriesId: string,
   season: number,
 ) {
-  return post('/api/series-episodes', { portalUrl, mac, token, seriesId, season });
+  return portalSeriesEpisodes({ portalUrl, mac, token }, seriesId, season);
 }
 
 export function apiSearch(
@@ -95,7 +89,7 @@ export function apiSearch(
   type: string,
   page = 1,
 ) {
-  return post('/api/search', { portalUrl, mac, token, query, type, page });
+  return portalSearch({ portalUrl, mac, token }, type, query, page);
 }
 
 export function apiStream(
@@ -105,12 +99,12 @@ export function apiStream(
   cmd: string,
   type: string,
 ) {
-  return post<{ url: string }>('/api/stream', { portalUrl, mac, token, cmd, type });
+  return portalResolveStream({ portalUrl, mac, token }, cmd, type);
 }
 
 /**
- * Build a proxy-stream URL the video player can load directly.
+ * In standalone mode, streams are played directly — no proxy needed.
  */
 export function proxyStreamUrl(streamUrl: string): string {
-  return `${BASE_URL}/proxy/stream?url=${encodeURIComponent(streamUrl)}`;
+  return streamUrl;
 }
