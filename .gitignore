@@ -1,0 +1,31 @@
+node_modules/
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+*.hprof
+*.keystore
+!debug.keystore
+
+# Metro
+.metro-health-check*
+
+# Buck
+buck-out/
+\.buckd/
+
+# CocoaPods (unused for TV but just in case)
+ios/Pods/
+
+# Env
+.env
+.env.local
+!.env.example
+
+# Build output
+dist/
+
+# OS
+.DS_Store
+Thumbs.db

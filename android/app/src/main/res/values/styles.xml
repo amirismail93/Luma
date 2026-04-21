@@ -1,0 +1,11 @@
+<resources>
+    <!-- Luma dark theme — no title bar, dark background for TV -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">#0A0A0A</item>
+        <item name="android:colorPrimary">#00C2FF</item>
+        <item name="android:colorAccent">#00C2FF</item>
+        <item name="android:textColorPrimary">#F0F0F0</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>
