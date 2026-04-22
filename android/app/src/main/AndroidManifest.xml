@@ -8,13 +8,15 @@
     <!-- Leanback (Android TV / Fire TV launcher integration) -->
     <uses-feature
         android:name="android.software.leanback"
-        android:required="true" />
+        android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".MainApplication"
         android:allowBackup="false"
+        android:icon="@drawable/ic_launcher"
+        android:banner="@drawable/tv_banner"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:supportsRtl="true"
