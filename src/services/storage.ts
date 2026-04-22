@@ -4,10 +4,28 @@ import {MMKV} from 'react-native-mmkv';
  * Global MMKV instance used for fast local key-value storage.
  * Stores: favorites, profiles, settings, watch history cache.
  */
-export const storage = new MMKV({
-  id: 'luma-storage',
-  encryptionKey: undefined, // set a key here if you need encrypted storage
-});
+let _storage: MMKV;
+try {
+  _storage = new MMKV({
+    id: 'luma-storage',
+    encryptionKey: undefined, // set a key here if you need encrypted storage
+  });
+} catch (e) {
+  console.warn('MMKV init failed, using fallback:', e);
+  // Fallback in-memory storage if MMKV native module isn't available
+  const map = new Map<string, string>();
+  _storage = {
+    set: (key: string, value: string | number | boolean) => map.set(key, String(value)),
+    getString: (key: string) => map.get(key),
+    getNumber: (key: string) => { const v = map.get(key); return v ? Number(v) : undefined; },
+    getBoolean: (key: string) => map.get(key) === 'true',
+    delete: (key: string) => { map.delete(key); },
+    getAllKeys: () => [...map.keys()],
+    clearAll: () => map.clear(),
+    contains: (key: string) => map.has(key),
+  } as unknown as MMKV;
+}
+export const storage = _storage;
 
 /* ------------------------------------------------------------------ */
 /*  Typed helpers                                                     */
